@@ -19,7 +19,7 @@ namespace CommunityBot.Modules.RoleAssignments
             var rbp = GlobalGuildAccounts.GetGuildAccount(Context.Guild).RoleByPhraseSettings;
 
             var phrases = rbp.Phrases.Any() ? string.Join("\n", rbp.Phrases.Select(p => $"({rbp.Phrases.IndexOf(p)}) - {p}")) : "No phrases stored\nAdd one with `rbp addPhrase YOUR-PHRASE`";
-            var roles = rbp.RolesIds.Any() ? string.Join("\n", rbp.RolesIds.Select(r => $"({rbp.RolesIds.IndexOf(r)}) - {Context.Guild.GetRole(r).Name}")) : "No roles stored\nAdd one with `rbp addRole @SomeRole`";
+            var roles = rbp.RoleIds.Any() ? string.Join("\n", rbp.RoleIds.Select(r => $"({rbp.RoleIds.IndexOf(r)}) - {Context.Guild.GetRole(r).Name}")) : "No roles stored\nAdd one with `rbp addRole @SomeRole`";
             var relations = rbp.Relations.Any() ? string.Join("\n", rbp.Relations.Select(r => $"Phrase {r.PhraseIndex} => Role {r.RoleIdIndex}")) : "No relations created\nAdd one with `rbp addRelation PHRASE-ID ROLE-ID`";
 
             var embed = new EmbedBuilder();

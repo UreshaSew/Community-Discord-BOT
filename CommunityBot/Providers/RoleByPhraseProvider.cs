@@ -141,7 +141,7 @@ namespace CommunityBot.Providers
                 var phraseIndex = guildSettings.RoleByPhraseSettings.Phrases.IndexOf(phrase);
                 var roleIds = guildSettings.RoleByPhraseSettings.Relations
                     .Where(r => r.PhraseIndex == phraseIndex)
-                    .Select(r => guildSettings.RoleByPhraseSettings.RolesIds.ElementAt(r.RoleIdIndex))
+                    .Select(r => guildSettings.RoleByPhraseSettings.RoleIds.ElementAt(r.RoleIdIndex))
                     .ToList();
 
                 foreach (var roleId in roleIds)

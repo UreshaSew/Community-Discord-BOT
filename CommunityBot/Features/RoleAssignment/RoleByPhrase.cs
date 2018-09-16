@@ -36,12 +36,12 @@ namespace CommunityBot.Features.RoleAssignment
         /// <exception cref="RoleIdAlreadyAddedException"></exception>
         public static void AddRole(this RoleByPhraseSettings settings, ulong roleId)
         {
-            if(settings.RolesIds.Contains(roleId))
+            if(settings.RoleIds.Contains(roleId))
             {
                 throw new RoleIdAlreadyAddedException($"The role with ID '{roleId}' is already added.");
             }
 
-            settings.RolesIds.Add(roleId);
+            settings.RoleIds.Add(roleId);
         }
 
         /// <summary>
@@ -58,13 +58,13 @@ namespace CommunityBot.Features.RoleAssignment
                 settings.Phrases.Add(phrase);
             }
 
-            if(!settings.RolesIds.Contains(roleId))
+            if(!settings.RoleIds.Contains(roleId))
             {
-                settings.RolesIds.Add(roleId);
+                settings.RoleIds.Add(roleId);
             }
 
             var phraseIndex = settings.Phrases.IndexOf(phrase);
-            var roleIdIndex = settings.RolesIds.IndexOf(roleId);
+            var roleIdIndex = settings.RoleIds.IndexOf(roleId);
 
             if(settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
             {
@@ -85,7 +85,7 @@ namespace CommunityBot.Features.RoleAssignment
         public static void CreateRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex)
         {
             settings.Phrases.ValidateIndex(phraseIndex);
-            settings.RolesIds.ValidateIndex(roleIdIndex);
+            settings.RoleIds.ValidateIndex(roleIdIndex);
 
             if (settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
             {
@@ -136,16 +136,16 @@ namespace CommunityBot.Features.RoleAssignment
         /// <param name="roleIdIndex">Index of the RoleID to remove</param>
         public static void RemoveRoleIdByIndex(this RoleByPhraseSettings settings, int roleIdIndex)
         {
-            settings.RolesIds.ValidateIndex(roleIdIndex);
+            settings.RoleIds.ValidateIndex(roleIdIndex);
 
             var affectedElementsOldIds = new List<int>();
 
-            for (var i = roleIdIndex; i < settings.RolesIds.Count; i++)
+            for (var i = roleIdIndex; i < settings.RoleIds.Count; i++)
             {
                 affectedElementsOldIds.Add(i);
             }
 
-            settings.RolesIds.RemoveAt(roleIdIndex);
+            settings.RoleIds.RemoveAt(roleIdIndex);
 
             settings.Relations = settings.Relations.Where(r => r.RoleIdIndex != roleIdIndex).ToList();
 
@@ -174,7 +174,7 @@ namespace CommunityBot.Features.RoleAssignment
         public static void RemoveRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex)
         {
             settings.Phrases.ValidateIndex(phraseIndex);
-            settings.RolesIds.ValidateIndex(roleIdIndex);
+            settings.RoleIds.ValidateIndex(roleIdIndex);
 
             if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
             {

@@ -15,7 +15,7 @@ namespace CommunityBot.Tests.FeatureTests
                     "A",
                     "B"
                 },
-                RolesIds =
+                RoleIds =
                 {
                     111,
                     222,
@@ -156,7 +156,7 @@ namespace CommunityBot.Tests.FeatureTests
             var rbps = GetFilledSettings();
 
             rbps.AddRole(123);
-            var actual = rbps.RolesIds.Count;
+            var actual = rbps.RoleIds.Count;
 
             Assert.AreEqual(expected, actual);
         }
@@ -175,7 +175,7 @@ namespace CommunityBot.Tests.FeatureTests
             var rbps = GetFilledSettings();
 
             rbps.RemoveRoleIdByIndex(0);
-            var actual = rbps.RolesIds.Count;
+            var actual = rbps.RoleIds.Count;
 
             Assert.AreEqual(expected, actual);
         }
