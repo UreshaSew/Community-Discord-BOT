@@ -13,6 +13,8 @@ namespace CommunityBot
 {
     public static class Global
     {
+        internal static int SnoopsHeartbeatCount = 0;
+        internal static bool SnoopsLives = false;
         internal static DiscordSocketClient Client { get; set; }
         internal static Dictionary<ulong, string> MessagesIdToTrack { get; set; }
         internal static Random Rng { get; set; } = new Random();

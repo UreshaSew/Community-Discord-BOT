@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using CommunityBot.Entities;
 using Discord.WebSocket;
+using Discord;
 
 namespace CommunityBot.Helpers
 {
@@ -14,9 +15,43 @@ namespace CommunityBot.Helpers
         {
             // Look for expired reminders every 3 seconds
             Global.TaskHander.AddRepeatedTask("Reminders", 3000, new ElapsedEventHandler(CheckReminders));
+            // Check if Snoops is alive every 10 seconds
+            Global.TaskHander.AddRepeatedTask("Snoops", 10000, new ElapsedEventHandler(CheckSnoops));
             // Help Message every 2 hours
             Global.TaskHander.AddRepeatedTask("Help Message", 7200000, new ElapsedEventHandler(SendHelpMessage));
             return Task.CompletedTask;
+        }
+
+        private static void CheckSnoops(object sender, ElapsedEventArgs e)
+        {
+            Global.SnoopsHeartbeatCount++;
+            Console.WriteLine($"Running Snoops heartbeat challenge #{Global.SnoopsHeartbeatCount}.");
+
+            var snoops = Global.Client.GetUser(240905093929500674);
+            if(snoops.Status == UserStatus.Offline)
+            {
+                if(Global.SnoopsLives)
+                {
+                    Console.WriteLine("Snoops stopped responding.");
+                    Global.SnoopsLives = false;
+                }
+                Console.WriteLine($"Snoops heartbeat #{Global.SnoopsHeartbeatCount} failed.");
+                return;
+            }
+            else
+            {
+                if(!Global.SnoopsLives)
+                {
+                    Global.SnoopsLives = true;
+                    Console.WriteLine($"Snoops heartbeat challenge #{Global.SnoopsHeartbeatCount} succeeded!");
+                    var spelos = Global.Client.GetUser(182941761801420802);
+                    spelos.SendMessageAsync($"**YO! SNOOPS IS ALIVE.**\n\nOr at least his status changed. He's now: {snoops.Status.ToString()}");
+                    if(spelos.Status != UserStatus.Online)
+                    {
+                        snoops.SendMessageAsync("Listen, Peter (Spelos) is not currently online (or he's DND or whatever), but you should probably go say hi. =)");
+                    }
+                }
+            }
         }
 
         private static async void SendHelpMessage(object sender, ElapsedEventArgs e)
