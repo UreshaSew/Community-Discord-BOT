@@ -4,5 +4,6 @@
     {
         public int PhraseIndex { get; set; }
         public int RoleIdIndex { get; set; }
+        public RoleRelationType Type { get; set; }
     }
 }

@@ -51,7 +51,7 @@ namespace CommunityBot.Features.RoleAssignment
         /// <param name="phrase">Phrase for the relation</param>
         /// <param name="roleId">Role ID for the relation</param>
         /// <exception cref="RelationAlreadyExistsException"></exception>
-        public static void ForceCreateRelation(this RoleByPhraseSettings settings, string phrase, ulong roleId)
+        public static void ForceCreateRelation(this RoleByPhraseSettings settings, string phrase, ulong roleId, RoleRelationType type = RoleRelationType.Add)
         {
             if(!settings.Phrases.Contains(phrase))
             {
@@ -71,7 +71,7 @@ namespace CommunityBot.Features.RoleAssignment
                 throw new RelationAlreadyExistsException();
             }
 
-            settings.Relations.Add(new RoleByPhraseRelation{PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex});
+            settings.Relations.Add(new RoleByPhraseRelation{PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex, Type = type});
         }
 
         /// <summary>
@@ -82,17 +82,17 @@ namespace CommunityBot.Features.RoleAssignment
         /// <param name="roleIdIndex">Index of the role ID in the list.</param>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="RelationAlreadyExistsException"></exception>
-        public static void CreateRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex)
+        public static void CreateRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex, RoleRelationType type = RoleRelationType.Add)
         {
             settings.Phrases.ValidateIndex(phraseIndex);
             settings.RoleIds.ValidateIndex(roleIdIndex);
 
-            if (settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
+            if (settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex && r.Type == type))
             {
                 throw new RelationAlreadyExistsException();
             }
 
-            settings.Relations.Add(new RoleByPhraseRelation { PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex });
+            settings.Relations.Add(new RoleByPhraseRelation { PhraseIndex = phraseIndex, RoleIdIndex = roleIdIndex, Type = type });
         }
 
         /// <summary>
@@ -171,18 +171,18 @@ namespace CommunityBot.Features.RoleAssignment
         /// <param name="roleIdIndex">index of the target RoleID</param>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="RelationNotFoundException"></exception>
-        public static void RemoveRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex)
+        public static void RemoveRelation(this RoleByPhraseSettings settings, int phraseIndex, int roleIdIndex, RoleRelationType type)
         {
             settings.Phrases.ValidateIndex(phraseIndex);
             settings.RoleIds.ValidateIndex(roleIdIndex);
 
-            if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex))
+            if (!settings.Relations.Any(r => r.PhraseIndex == phraseIndex && r.RoleIdIndex == roleIdIndex && r.Type == type))
             {
                 throw new RelationNotFoundException();
             }
 
             settings.Relations = settings.Relations
-                .Where(r => r.PhraseIndex != phraseIndex || r.RoleIdIndex != roleIdIndex)
+                .Where(r => r.PhraseIndex != phraseIndex || r.RoleIdIndex != roleIdIndex || r.Type != type)
                 .ToList();
         }
 

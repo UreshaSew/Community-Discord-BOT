@@ -78,13 +78,13 @@ namespace CommunityBot.Providers
 
         public enum RelationCreationResult { Success, InvalidIndex, AlreadyExists, Failed }
 
-        public static RelationCreationResult CreateRelation(IGuild guild, int phraseIndex, int roleIdIndex)
+        public static RelationCreationResult CreateRelation(IGuild guild, int phraseIndex, int roleIdIndex, RoleRelationType type)
         {
             var guildSettings = GlobalGuildAccounts.GetGuildAccount(guild);
 
             try
             {
-                guildSettings.RoleByPhraseSettings.CreateRelation(phraseIndex, roleIdIndex);
+                guildSettings.RoleByPhraseSettings.CreateRelation(phraseIndex, roleIdIndex, type);
                 GlobalGuildAccounts.SaveAccounts();
                 return RelationCreationResult.Success;
             }
@@ -118,11 +118,11 @@ namespace CommunityBot.Providers
             GlobalGuildAccounts.SaveAccounts();
         }
 
-        public static void RemoveRelation(IGuild guild, int phraseIndex, int roleIdIndex)
+        public static void RemoveRelation(IGuild guild, int phraseIndex, int roleIdIndex, RoleRelationType type)
         {
             var guildSettings = GlobalGuildAccounts.GetGuildAccount(guild);
 
-            guildSettings.RoleByPhraseSettings.RemoveRelation(phraseIndex, roleIdIndex);
+            guildSettings.RoleByPhraseSettings.RemoveRelation(phraseIndex, roleIdIndex, type);
             GlobalGuildAccounts.SaveAccounts();
         }
 
@@ -135,19 +135,31 @@ namespace CommunityBot.Providers
             if (!triggeredPhrases.Any()) return;
 
             var roleIdsToGet = new List<ulong>();
+            var roleIdsToLose = new List<ulong>();
 
             foreach (var phrase in triggeredPhrases)
             {
                 var phraseIndex = guildSettings.RoleByPhraseSettings.Phrases.IndexOf(phrase);
-                var roleIds = guildSettings.RoleByPhraseSettings.Relations
-                    .Where(r => r.PhraseIndex == phraseIndex)
+                var roleIdsToAdd = guildSettings.RoleByPhraseSettings.Relations
+                    .Where(r => r.PhraseIndex == phraseIndex && r.Type == RoleRelationType.Add)
                     .Select(r => guildSettings.RoleByPhraseSettings.RoleIds.ElementAt(r.RoleIdIndex))
                     .ToList();
 
-                foreach (var roleId in roleIds)
+                var roleIdsToRemove = guildSettings.RoleByPhraseSettings.Relations
+                    .Where(r => r.PhraseIndex == phraseIndex && r.Type == RoleRelationType.Remove)
+                    .Select(r => guildSettings.RoleByPhraseSettings.RoleIds.ElementAt(r.RoleIdIndex))
+                    .ToList();
+
+                foreach (var roleId in roleIdsToAdd)
                 {
-                    if (roleIdsToGet.Contains(roleId)) continue;
-                    roleIdsToGet.Add(roleId);
+                    if (!roleIdsToGet.Contains(roleId))
+                        roleIdsToGet.Add(roleId);
+                }
+
+                foreach (var roleId in roleIdsToRemove)
+                {
+                    if (!roleIdsToLose.Contains(roleId))
+                        roleIdsToLose.Add(roleId);
                 }
             }
 
@@ -157,6 +169,14 @@ namespace CommunityBot.Providers
                 var role = guild.GetRole(roleId);
                 if(role is null) continue;
                 await sender.AddRoleAsync(role);
+            }
+
+            foreach (var roleId in roleIdsToLose)
+            {
+                if (!sender.RoleIds.Contains(roleId)) continue;
+                var role = guild.GetRole(roleId);
+                if(role is null) continue;
+                await sender.RemoveRoleAsync(role);
             }
         }
     }
